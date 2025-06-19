@@ -1,0 +1,36 @@
+import { StandardButton } from "std-widgets.slint";
+import { CustomInput } from "CustomInput.slint";
+
+export component NewConnectionDialog inherits Dialog {
+    always-on-top: true;
+    callback close-dialog();
+    width: 400px;
+    height: 300px;
+    // Quiero hacer mi propio DataGrid/DataFlare/DBeaver
+    Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #0C0C0C;
+        VerticalLayout {
+            CustomInput {
+                label: "Connection Name";
+            }
+
+            HorizontalLayout {
+                StandardButton {
+                    kind: ok;
+                    clicked => {
+                        close-dialog();
+                    }
+                }
+
+                StandardButton {
+                    kind: cancel;
+                    clicked => {
+                        close-dialog();
+                    }
+                }
+            }
+        }
+    }
+}

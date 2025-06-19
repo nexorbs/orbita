@@ -1,0 +1,27 @@
+export component CustomInput inherits Rectangle {
+    width: 100%;
+    height: 30px;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: #ffffff8d;
+    in-out property <string> label: "Default Label";
+    TextInput {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        font-size: 14pt;
+        color: #FFFFFF;
+    }
+
+    Rectangle {
+        width: parent.width - 20px;
+        height: 5px;
+        y: parent.height - 45px;
+        x: self.width - 500px;
+        Text {
+            text: label;
+            font-size: 12pt;
+            color: #ffffff;
+        }
+    }
+}
