@@ -1,48 +1,25 @@
 import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
-import { NewConnectionDialog } from "widgets/NewConnectionDialog.slint";
+import { NewConnectionDialog } from "screens/NewConnectionDialog.slint";
+import { CButton } from "widgets/CButton.slint";
+import { Icons } from "icons.slint";
+import { Theme } from "theme.slint";
 
 export component AppWindow inherits Window {
     title: "Orbita";
-    icon: @image-url("icons/icon_orbita.svg");
+    icon: Icons.icon_orbita;
     preferred-width: 1200px;
     preferred-height: 800px;
     min-width: 800px;
     min-height: 600px;
+    background: Theme.background;
     property <bool> dialog-visible: false;
-    HorizontalLayout {
-        width: 100%;
-        height: 100%;
-        Rectangle {
-            width: 200px;
-            height: 100%;
-            background: #0000001a;
-            HorizontalLayout {
-                width: 100%;
-                height: 100%;
-                alignment: end;
-                Button {
-                    height: 40px;
-                    icon: @image-url("icons/add.svg");
-                    clicked => {
-                        debug("Add new connection clicked");
-                        dialog-visible = true;
-                    }
-                }
-            }
-        }
-
-        VerticalLayout {
-            Rectangle {
-                width: 100%;
-                height: 40px;
-                background: #8b2323;
-            }
-
-            Rectangle {
-                width: 100%;
-                height: 100%;
-                background: #23238b;
-            }
+    CButton {
+        width: 200px;
+        text: "Custom Button";
+        icon: Icons.plus_icon;
+        onClick => {
+            debug("Custom button clicked");
+            dialog-visible = true;
         }
     }
 
