@@ -1,42 +1,119 @@
 import { StandardButton } from "std-widgets.slint";
-import { CustomInput } from "../widgets/CustomInput.slint";
 import { Theme } from "../theme.slint";
+import { CInput } from "../widgets/CInput.slint";
+import { Icons } from "../icons.slint";
+import { CButton } from "../widgets/CButton.slint";
 
 export component NewConnectionDialog inherits Dialog {
     always-on-top: true;
     callback close-dialog();
-    width: 400px;
-    height: 300px;
     Rectangle {
+        background: Theme.background;
         border-color: Theme.text;
         border-radius: Theme.border-radius;
         border-width: Theme.border-width;
-        width: 100%;
-        height: 100%;
-        background: Theme.background;
-        VerticalLayout {
+        GridLayout {
             padding: Theme.padding;
-            CustomInput {
-                label: "Connection Name";
+            width: 400px;
+            Row {
+                Text {
+                    text: "New Database Connection";
+                    font-size: 18pt;
+                    color: Theme.text;
+                }
+
+                CButton {
+                    height: 40px;
+                    icon: Icons.close;
+                    onClick => {
+                        resetFocus();
+                        close-dialog();
+                    }
+                }
             }
 
-            HorizontalLayout {
-                spacing: Theme.spacing;
-                StandardButton {
-                    height: 40px;
-                    kind: ok;
-                    clicked => {
-                        close-dialog();
+            Row {
+                Rectangle {
+                    width: 100%;
+                    height: 1px;
+                    background: Theme.border-color;
+                }
+            }
+
+            GridLayout {
+                spacing: Theme.form-spacing;
+                Rectangle {
+                    height: 5px;
+                }
+
+                Row {
+                    connection_name := CInput {
+                        label: "Connection Name";
                     }
                 }
 
-                StandardButton {
-                    height: 40px;
-                    kind: cancel;
-                    clicked => {
-                        close-dialog();
+                Row {
+                    database_type := CInput {
+                        label: "Database Type";
                     }
                 }
+
+                Row {
+                    GridLayout {
+                        Row {
+                            db_host := CInput {
+                                label: "Host";
+                                col: 0;
+                                width: 50%;
+                            }
+
+                            db_port := CInput {
+                                label: "Port";
+                                col: 1;
+                                width: 50%;
+                            }
+                        }
+                    }
+                }
+
+                Row {
+                    db_name := CInput {
+                        label: "Database Name";
+                    }
+                }
+
+                Row {
+                    db_user := CInput {
+                        label: "User";
+                    }
+                }
+
+                Row {
+                    db_password := CInput {
+                        label: "Password";
+                    }
+                }
+
+                Row {
+                    CButton {
+                        height: 40px;
+                        text: "Save";
+                        onClick => {
+                            resetFocus();
+                            close-dialog();
+                        }
+                    }
+                }
+            }
+
+            function resetFocus() {
+                connection_name.clear_input_focus();
+                database_type.clear_input_focus();
+                db_host.clear_input_focus();
+                db_port.clear_input_focus();
+                db_name.clear_input_focus();
+                db_user.clear_input_focus();
+                db_password.clear_input_focus();
             }
         }
     }

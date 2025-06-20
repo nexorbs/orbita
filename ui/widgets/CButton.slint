@@ -1,32 +1,42 @@
 import { Button } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
 export component CButton inherits Rectangle {
     height: 30px;
-    background: touch.has-hover ? #0c0c0c82 : #0C0C0C00;
+    background: touch.has-hover ? Theme.button-hover-background : #0C0C0C00;
     animate background { duration: 200ms; }
     in-out property <string> text;
     in-out property <image> icon;
     callback onClick();
-    HorizontalLayout {
-        spacing: 10px;
-        padding: 5px;
+    VerticalLayout {
+        width: 100%;
+        height: 100%;
+        spacing: 0px;
+        padding: 0px;
         alignment: center;
-        Image {
-            source: icon;
-            width: 20px;
-            height: 20px;
-            vertical-alignment: center;
-            colorize: #FFFFFF;
-        }
-
-        Text {
-            text: text;
-            color: #FFFFFF;
-            vertical-alignment: center;
+        HorizontalLayout {
+            spacing: 10px;
+            padding: 5px;
+            alignment: center;
+            if (icon.width > 0):
+                Image {
+                source: icon;
+                width: 20px;
+                height: 20px;
+                vertical-alignment: center;
+                colorize: #FFFFFF;
+            }
+            if (text != ""):
+                Text {
+                text: text;
+                color: #FFFFFF;
+                vertical-alignment: center;
+            }
         }
     }
 
     touch := TouchArea {
         clicked => {
+            debug(icon);
             root.onClick();
         }
     }

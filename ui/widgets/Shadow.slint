@@ -1,0 +1,24 @@
+import { Theme } from "../theme.slint";
+export component Shadow inherits Rectangle {
+    // Propiedades públicas
+    in property <length> blur: 10px;
+    in property <color> bg-color: Theme.shadow;
+    callback clicked();
+
+    // Configuración visual
+    drop-shadow-blur: blur;
+    drop-shadow-color: bg-color;
+    TouchArea {
+        width: 100%;
+        height: 100%;
+        clicked => {
+            clicked();
+        }
+    }
+
+    // Animación de sombra
+    animate drop-shadow-blur, drop-shadow-color, drop-shadow-offset-x, drop-shadow-offset-y {
+        duration: 200ms;
+        easing: ease-in-out;
+    }
+}

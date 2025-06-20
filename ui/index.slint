@@ -3,6 +3,7 @@ import { NewConnectionDialog } from "screens/NewConnectionDialog.slint";
 import { CButton } from "widgets/CButton.slint";
 import { Icons } from "icons.slint";
 import { Theme } from "theme.slint";
+import { Shadow } from "widgets/Shadow.slint";
 
 export component AppWindow inherits Window {
     title: "Orbita";
@@ -23,10 +24,19 @@ export component AppWindow inherits Window {
         }
     }
 
-    NewConnectionDialog {
+    Shadow {
+        width: 100%;
+        height: 100%;
         visible: dialog-visible;
-        close-dialog => {
+        clicked => {
+            debug("Shadow clicked, closing dialog");
             dialog-visible = false;
+        }
+        NewConnectionDialog {
+            visible: dialog-visible;
+            close-dialog => {
+                dialog-visible = false;
+            }
         }
     }
 }

@@ -1,0 +1,128 @@
+import { Theme } from "../theme.slint";
+import { Palette } from "std-widgets.slint";
+
+export component CInput inherits Rectangle {
+    // Propiedades públicas
+    in-out property <string> text <=> text-input.text;
+    in property <string> label: "Default Label";
+    in property <string> placeholder: "";
+    in property <InputType> input-type: InputType.text;
+    in property <bool> read-only: false;
+    out property <bool> has-focus <=> text-input.has-focus;
+    property <length> margin: 8px;
+    
+    // Callbacks públicos
+    callback accepted();
+    callback edited();
+    
+    // Configuración visual
+    width: 100%;
+    height: 50px;
+    border-radius: Theme.border-radius;
+    border-width: Theme.border-width;
+    border-color: Theme.border-color;
+    background: Palette.background;
+    forward-focus: text-input;
+
+    // Label flotante
+    label-container := Rectangle {
+        x: margin;
+        y: text-input.text.is-empty ? parent.height / 2 - self.height / 2 : -self.height / 2;
+        width: label-text.preferred-width + 8px;
+        height: label-text.preferred-height;
+        z: 1;
+        animate y, background {
+            duration: 100ms;
+            easing: ease-out;
+        }
+        label-text := Text {
+            x: 4px;
+            text: label;
+            font-size: text-input.text.is-empty ? 12pt : 10pt;
+            color: text-input.has-focus ? Theme.border-color : #888;
+            vertical-alignment: center;
+            animate font-size, color {
+                duration: 30ms;
+                easing: ease-out;
+            }
+        }
+    }
+
+    // Placeholder (solo se muestra cuando no hay label activo y el campo está vacío)
+    if text-input.text.is-empty && placeholder != "": Text {
+        x: margin;
+        y: parent.height / 2 - self.height / 2;
+        text: placeholder;
+        font-size: 12pt;
+        color: #666;
+        horizontal-alignment: left;
+        vertical-alignment: center;
+    }
+
+    // Input de texto con scroll horizontal
+    text-input := TextInput {
+        property <length> computed-x: margin;
+        x: min(0px, max(root.width - self.width - self.text-cursor-width - root.margin * 2, self.computed-x)) + root.margin;
+        y: root.margin;
+        width: max(self.preferred-width, parent.width - self.text-cursor-width - root.margin * 2);
+        height: parent.height - root.margin * 2;
+        
+        // Configuración del TextInput
+        single-line: true;
+        font-size: 12pt;
+        color: #FFFFFF;
+        vertical-alignment: center;
+        input-type: root.input-type;
+        read-only: root.read-only;
+        horizontal-alignment: TextHorizontalAlignment.left;
+
+        // Manejo del scroll horizontal según documentación oficial
+        cursor-position-changed(cursor-position) => {
+            if cursor-position.x + self.computed-x < root.margin {
+                self.computed-x = -cursor-position.x + root.margin * 2;
+            } else if cursor-position.x + self.computed-x > root.width - root.margin * 2 - self.text-cursor-width {
+                self.computed-x = root.width - cursor-position.x - root.margin * 2 - self.text-cursor-width;
+            }
+            
+            // Actualizar color del borde cuando cambia la posición del cursor
+            root.border-color = self.has-focus ? Theme.border-color : #666;
+        }
+
+        // Callbacks del TextInput
+        accepted() => {
+            root.accepted();
+        }
+        edited() => {
+            root.edited();
+        }
+    }
+
+    // Animación del borde cuando tiene foco
+    animate border-color {
+        duration: 200ms;
+        easing: ease-out;
+    }
+
+    // Funciones públicas para control programático
+    public function focus_input() {
+        text-input.focus();
+    }
+    public function clear_input_focus() {
+        text-input.clear-focus();
+    }
+    public function select-all() {
+        text-input.select-all();
+    }
+    public function clear-selection() {
+        text-input.clear-selection();
+    }
+    public function copy() {
+        text-input.copy();
+    }
+    public function cut() {
+        text-input.cut();
+    }
+    public function paste() {
+        text-input.paste();
+    }
+}
