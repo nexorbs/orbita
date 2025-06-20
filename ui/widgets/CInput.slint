@@ -4,7 +4,7 @@ import { Palette } from "std-widgets.slint";
 export component CInput inherits Rectangle {
     // Propiedades públicas
     in-out property <string> text <=> text-input.text;
-    in property <string> label: "Default Label";
+    in property <string> label;
     in property <string> placeholder: "";
     in property <InputType> input-type: InputType.text;
     in property <bool> read-only: false;
@@ -21,7 +21,7 @@ export component CInput inherits Rectangle {
     border-radius: Theme.border-radius;
     border-width: Theme.border-width;
     border-color: Theme.border-color;
-    background: Palette.background;
+    background: Theme.gray;
     forward-focus: text-input;
 
     // Label flotante
@@ -102,8 +102,6 @@ export component CInput inherits Rectangle {
         duration: 200ms;
         easing: ease-out;
     }
-
-    // Funciones públicas para control programático
     public function focus_input() {
         text-input.focus();
     }

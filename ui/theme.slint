@@ -1,19 +1,32 @@
 export global Theme {
-    // Color definitions
-    out property <color> background: #0C0C0C;
-    out property <color> text: #FFFFFF;
+    // Figma colors definitions
+    out property <color> white: #FAF9F6;
+    out property <color> black: #0C0C0C;
+    out property <color> green: #4CAF50;
+    out property <color> orange: #FFA726;
+    out property <color> yellow: #FFB74D;
+    out property <color> soft_gray: #6C6C6C;
+    out property <color> NONE: #00000000;
+    // Color palette
+    out property <color> background: self.black;
+    out property <color> text: self.white;
+    out property <color> gray: #1C1C1C;
+    // Button styles
     out property <color> button-background: #0C0C0C82;
     out property <color> button-hover-background: #1C1C1C;
-    out property <color> button-text: #FFFFFF;
-    out property <color> shadow: #0000003d;
+    out property <color> button-text: self.white;
     // Border styles
     out property <length> border-radius: 8px;
     out property <length> border-width: 0.5px;
-    out property <color> border-color: #FFFFFF;
+    out property <color> border-color: self.white;
     // Margin and padding and spacing
     out property <length> margin: 10px;
     out property <length> padding: 10px;
     out property <length> double-padding: 20px;
     out property <length> spacing: 10px;
     out property <length> form-spacing: 20px;
+    out property <length> maring-right: 5px;
+    out property <length> maring-left: 5px;
+    // Extras
+    out property <color> shadow: #0000003d;
 }

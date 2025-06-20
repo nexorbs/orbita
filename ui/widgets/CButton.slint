@@ -1,11 +1,15 @@
 import { Button } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
+
 export component CButton inherits Rectangle {
-    height: 30px;
-    background: touch.has-hover ? Theme.button-hover-background : #0C0C0C00;
-    animate background { duration: 200ms; }
     in-out property <string> text;
     in-out property <image> icon;
+    in-out property <color> hover-color: Theme.button-background;
+    in-out property <bool> has-hover-color: false;
+    height: 30px;
+    // TODO: Arreglar el tema de los botones, mas que nada el tema de los hover colors.
+    background: touch.has-hover ? (has-hover-color ? hover-color : Theme.button-background) : Theme.button-background;
+    animate background { duration: 200ms; }
     callback onClick();
     VerticalLayout {
         width: 100%;
@@ -23,12 +27,12 @@ export component CButton inherits Rectangle {
                 width: 20px;
                 height: 20px;
                 vertical-alignment: center;
-                colorize: #FFFFFF;
+                colorize: Theme.button-text;
             }
             if (text != ""):
                 Text {
                 text: text;
-                color: #FFFFFF;
+                color: Theme.button-text;
                 vertical-alignment: center;
             }
         }

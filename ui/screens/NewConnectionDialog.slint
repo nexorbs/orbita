@@ -1,4 +1,4 @@
-import { StandardButton } from "std-widgets.slint";
+import { StandardButton, HorizontalBox } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { CInput } from "../widgets/CInput.slint";
 import { Icons } from "../icons.slint";
@@ -12,14 +12,23 @@ export component NewConnectionDialog inherits Dialog {
         border-color: Theme.text;
         border-radius: Theme.border-radius;
         border-width: Theme.border-width;
-        GridLayout {
+        VerticalLayout {
             padding: Theme.padding;
-            width: 400px;
-            Row {
+            HorizontalLayout {
+                spacing: Theme.spacing;
+                Image {
+                    width: 30px;
+                    height: 30px;
+                    source: Icons.database;
+                    colorize: Theme.text;
+                    vertical-alignment: center;
+                }
+
                 Text {
                     text: "New Database Connection";
                     font-size: 18pt;
                     color: Theme.text;
+                    vertical-alignment: center;
                 }
 
                 CButton {
@@ -32,75 +41,86 @@ export component NewConnectionDialog inherits Dialog {
                 }
             }
 
-            Row {
-                Rectangle {
-                    width: 100%;
-                    height: 1px;
-                    background: Theme.border-color;
-                }
+            Rectangle {
+                width: 100%;
+                height: 1px;
+                background: Theme.border-color;
             }
 
-            GridLayout {
+            VerticalLayout {
                 spacing: Theme.form-spacing;
                 Rectangle {
                     height: 5px;
                 }
 
-                Row {
-                    connection_name := CInput {
-                        label: "Connection Name";
+                connection_name := CInput {
+                    label: "Connection Name";
+                }
+
+                database_type := CInput {
+                    placeholder: "[Cambiar por un select dropdown]";
+                }
+
+                HorizontalLayout {
+                    width: 100%;
+                    db_host := CInput {
+                        label: "Host";
+                        width: 48.5%;
+                    }
+
+                    Rectangle {
+                        width: 10px; // Spacer
+                    }
+
+                    db_port := CInput {
+                        label: "Port";
+                        width: 48.5%;
                     }
                 }
 
-                Row {
-                    database_type := CInput {
-                        label: "Database Type";
-                    }
+                db_name := CInput {
+                    label: "Database Name";
                 }
 
-                Row {
-                    GridLayout {
-                        Row {
-                            db_host := CInput {
-                                label: "Host";
-                                col: 0;
-                                width: 50%;
-                            }
+                db_user := CInput {
+                    label: "User";
+                }
 
-                            db_port := CInput {
-                                label: "Port";
-                                col: 1;
-                                width: 50%;
-                            }
+                db_password := CInput {
+                    label: "Password";
+                }
+
+                // Action buttons
+                HorizontalLayout {
+                    spacing: Theme.spacing;
+                    width: 100%;
+                    CButton {
+                        height: 40px;
+                        width: 50%;
+                        icon: Icons.test_connection;
+                        background: Theme.gray;
+                        text: "Test Connection";
+                        hover-color: Theme.green;
+                        has-hover-color: true;
+                        onClick => {
+                            resetFocus();
+                            close-dialog();
                         }
                     }
-                }
 
-                Row {
-                    db_name := CInput {
-                        label: "Database Name";
-                    }
-                }
-
-                Row {
-                    db_user := CInput {
-                        label: "User";
-                    }
-                }
-
-                Row {
-                    db_password := CInput {
-                        label: "Password";
-                    }
-                }
-
-                Row {
                     CButton {
                         height: 40px;
                         text: "Save";
                         onClick => {
                             resetFocus();
                             close-dialog();
+                            debug("Connection Name: ", connection_name.text);
+                            debug("Database Type: ", database_type.text);
+                            debug("Host: ", db_host.text);
+                            debug("Port: ", db_port.text);
+                            debug("Database Name: ", db_name.text);
+                            debug("User: ", db_user.text);
+                            debug("Password: ", db_password.text);
                         }
                     }
                 }
