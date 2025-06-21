@@ -4,6 +4,7 @@ import { CButton } from "widgets/CButton.slint";
 import { Icons } from "icons.slint";
 import { Theme } from "theme.slint";
 import { Shadow } from "widgets/Shadow.slint";
+import { MenuBar } from "screens/MenuBar.slint";
 
 export component AppWindow inherits Window {
     title: "Orbita";
@@ -12,15 +13,25 @@ export component AppWindow inherits Window {
     preferred-height: 800px;
     min-width: 800px;
     min-height: 600px;
-    background: Theme.background;
+    background: Theme.white;
     property <bool> dialog-visible: false;
-    CButton {
-        width: 200px;
-        text: "Custom Button";
-        icon: Icons.plus_icon;
-        onClick => {
-            debug("Custom button clicked");
-            dialog-visible = true;
+    
+    // Propiedades para acceder a los datos del diálogo desde Rust
+    in-out property <string> connection_name;
+    in-out property <string> database_type;
+    in-out property <string> db_host;
+    in-out property <string> db_port;
+    in-out property <string> db_name;
+    in-out property <string> db_user;
+    in-out property <string> db_password;
+    callback rTestConnection();
+    GridLayout {
+        MenuBar {
+            items: [{ text: "Open" }, { text: "Execute" }, { text: "Save" }, { text: "Settings" }];
+            showAddButton: true;
+            addConnectionClicked => {
+                dialog-visible = true;
+            }
         }
     }
 
@@ -28,8 +39,20 @@ export component AppWindow inherits Window {
         width: 100%;
         height: 100%;
         visible: dialog-visible;
-        NewConnectionDialog {
+        new-connection-dialog := NewConnectionDialog {
             visible: dialog-visible;
+            
+            // Sincronizar las propiedades del diálogo con las del AppWindow
+            connection_name <=> root.connection_name;
+            database_type <=> root.database_type;
+            db_host <=> root.db_host;
+            db_port <=> root.db_port;
+            db_name <=> root.db_name;
+            db_user <=> root.db_user;
+            db_password <=> root.db_password;
+            testConnection => {
+                rTestConnection();
+            }
             close-dialog => {
                 dialog-visible = false;
             }

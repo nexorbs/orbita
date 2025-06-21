@@ -3,10 +3,21 @@ import { Theme } from "../theme.slint";
 import { CInput } from "../widgets/CInput.slint";
 import { Icons } from "../icons.slint";
 import { CButton } from "../widgets/CButton.slint";
+import { CSelect } from "../widgets/CSelect.slint";
 
 export component NewConnectionDialog inherits Dialog {
     always-on-top: true;
+    
+    // Propiedades exportadas para acceso desde el componente padre
+    in-out property <string> connection_name;
+    in-out property <string> database_type;
+    in-out property <string> db_host;
+    in-out property <string> db_port;
+    in-out property <string> db_name;
+    in-out property <string> db_user;
+    in-out property <string> db_password;
     callback close-dialog();
+    callback testConnection();
     Rectangle {
         background: Theme.background;
         border-color: Theme.text;
@@ -35,7 +46,6 @@ export component NewConnectionDialog inherits Dialog {
                     height: 40px;
                     icon: Icons.close;
                     onClick => {
-                        resetFocus();
                         close-dialog();
                     }
                 }
@@ -53,41 +63,61 @@ export component NewConnectionDialog inherits Dialog {
                     height: 5px;
                 }
 
-                connection_name := CInput {
+                CInput {
                     label: "Connection Name";
+                    text <=> root.connection_name;
                 }
 
-                database_type := CInput {
-                    placeholder: "[Cambiar por un select dropdown]";
+                CSelect {
+                    label: "Database Type";
+                    model: ["", "MySQL", "PostgreSQL", "SQLite"];
+                    selected(value) => {
+                        root.database_type = value;
+                        debug("Database type: " + value);
+                        
+                        // Auto-llenar puerto por defecto
+                        if (value == "MySQL" && root.db_port == "") {
+                            root.db_port = "3306";
+                        } else if (value == "PostgreSQL" && root.db_port == "") {
+                            root.db_port = "5432";
+                        } else if (value == "SQLite") {
+                            root.db_port = "";
+                        }
+                    }
                 }
 
                 HorizontalLayout {
                     width: 100%;
-                    db_host := CInput {
+                    CInput {
                         label: "Host";
                         width: 48.5%;
+                        text <=> root.db_host;
                     }
 
                     Rectangle {
                         width: 10px; // Spacer
                     }
 
-                    db_port := CInput {
+                    CInput {
                         label: "Port";
                         width: 48.5%;
+                        text <=> root.db_port;
                     }
                 }
 
-                db_name := CInput {
+                CInput {
                     label: "Database Name";
+                    text <=> root.db_name;
                 }
 
-                db_user := CInput {
+                CInput {
                     label: "User";
+                    text <=> root.db_user;
                 }
 
-                db_password := CInput {
+                CInput {
                     label: "Password";
+                    text <=> root.db_password;
                 }
 
                 // Action buttons
@@ -103,8 +133,7 @@ export component NewConnectionDialog inherits Dialog {
                         hover-color: Theme.green;
                         has-hover-color: true;
                         onClick => {
-                            resetFocus();
-                            close-dialog();
+                            testConnection();
                         }
                     }
 
@@ -112,28 +141,10 @@ export component NewConnectionDialog inherits Dialog {
                         height: 40px;
                         text: "Save";
                         onClick => {
-                            resetFocus();
                             close-dialog();
-                            debug("Connection Name: ", connection_name.text);
-                            debug("Database Type: ", database_type.text);
-                            debug("Host: ", db_host.text);
-                            debug("Port: ", db_port.text);
-                            debug("Database Name: ", db_name.text);
-                            debug("User: ", db_user.text);
-                            debug("Password: ", db_password.text);
                         }
                     }
                 }
-            }
-
-            function resetFocus() {
-                connection_name.clear_input_focus();
-                database_type.clear_input_focus();
-                db_host.clear_input_focus();
-                db_port.clear_input_focus();
-                db_name.clear_input_focus();
-                db_user.clear_input_focus();
-                db_password.clear_input_focus();
             }
         }
     }

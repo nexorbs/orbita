@@ -1,0 +1,88 @@
+import { Theme } from "../theme.slint";
+import { ComboBox } from "std-widgets.slint";
+
+export component CSelect inherits Rectangle {
+    // Propiedades públicas que mapean al ComboBox nativo
+    in-out property <int> current-index <=> combo-box.current-index;
+    in-out property <string> current-value <=> combo-box.current-value;
+    in property <[string]> model <=> combo-box.model;
+    in property <string> label;
+    in property <string> placeholder: "Seleccionar...";
+    in property <bool> enabled: true;
+    out property <bool> has-focus <=> combo-box.has-focus;
+    property <length> margin: 8px;
+    
+    // Callbacks públicos
+    callback selected(string);
+    
+    // Label flotante
+    label-container := Rectangle {
+        x: margin;
+        y: current-value == "" ? parent.height / 2 - self.height / 2 : -self.height / 2;
+        width: label-text.preferred-width + 8px;
+        height: label-text.preferred-height;
+        z: 2;
+        animate y {
+            duration: 100ms;
+            easing: ease-out;
+        }
+        Rectangle {
+            border-radius: 2px;
+        }
+
+        label-text := Text {
+            x: 4px;
+            text: label;
+            font-size: current-value == "" ? 12pt : 10pt;
+            color: enabled ? (has-focus ? Theme.border-color : #888) : #666;
+            vertical-alignment: center;
+            animate font-size, color {
+                duration: 150ms;
+                easing: ease-out;
+            }
+        }
+    }
+    
+    // ComboBox nativo estilizado
+    combo-box := ComboBox {
+        height: 48px;
+        width: 100%;
+        enabled: root.enabled;
+        
+        // El ComboBox nativo maneja toda la lógica interna
+        selected(value) => {
+            root.selected(value);
+        }
+    }
+    
+    // Overlay para mostrar placeholder cuando está vacío
+    if current-value == "" && placeholder != "": Rectangle {
+        x: margin + 8px; // Ajustar según el padding interno del ComboBox
+        y: margin;
+        width: parent.width - margin * 2 - 32px; // Espacio para la flecha
+        height: parent.height - margin * 2;
+        Text {
+            text: placeholder;
+            font-size: 12pt;
+            color: enabled ? #888 : #666;
+            vertical-alignment: center;
+            horizontal-alignment: left;
+        }
+    }
+    
+    // Animaciones
+    animate border-color, background {
+        duration: 200ms;
+        easing: ease-out;
+    }
+    
+    // Funciones públicas
+    public function select-by-index(index: int) {
+        if (index >= 0 && index < model.length) {
+            current-index = index;
+        }
+    }
+    public function clear-selection() {
+        current-index = -1;
+    }
+}

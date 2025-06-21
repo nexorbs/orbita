@@ -1,46 +1,42 @@
-import { Button } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
-
 export component CButton inherits Rectangle {
     in-out property <string> text;
     in-out property <image> icon;
     in-out property <color> hover-color: Theme.button-background;
     in-out property <bool> has-hover-color: false;
+    width: 100px; // Asegúrate de darle ancho si lo estás usando fuera de layout
     height: 30px;
-    // TODO: Arreglar el tema de los botones, mas que nada el tema de los hover colors.
-    background: touch.has-hover ? (has-hover-color ? hover-color : Theme.button-background) : Theme.button-background;
     animate background { duration: 200ms; }
     callback onClick();
-    VerticalLayout {
-        width: 100%;
-        height: 100%;
-        spacing: 0px;
-        padding: 0px;
+
+    // Contenedor visual
+    HorizontalLayout {
+        spacing: 10px;
+        padding: 5px;
         alignment: center;
-        HorizontalLayout {
-            spacing: 10px;
-            padding: 5px;
-            alignment: center;
-            if (icon.width > 0):
-                Image {
-                source: icon;
-                width: 20px;
-                height: 20px;
-                vertical-alignment: center;
-                colorize: Theme.button-text;
-            }
-            if (text != ""):
-                Text {
-                text: text;
-                color: Theme.button-text;
-                vertical-alignment: center;
-            }
+        if (icon.width > 0):
+            Image {
+            source: icon;
+            width: 20px;
+            height: 20px;
+            vertical-alignment: center;
+            colorize: Theme.button-text;
+        }
+        if (text != ""):
+            Text {
+            text: text;
+            color: Theme.button-text;
+            vertical-alignment: center;
         }
     }
 
-    touch := TouchArea {
+    // TouchArea encima de todo
+    TouchArea {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
         clicked => {
-            debug(icon);
             root.onClick();
         }
     }
