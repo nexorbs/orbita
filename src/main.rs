@@ -2,8 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::{Deserialize, Serialize};
-use sqlx::{Column, Row};
-use std::collections::HashMap;
+use sqlx::Row;
 use std::error::Error;
 use tokio::runtime::Runtime;
 
