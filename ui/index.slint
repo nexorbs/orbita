@@ -1,3 +1,4 @@
+// #region Imports
 import { Button, VerticalBox, HorizontalBox, TextEdit } from "std-widgets.slint";
 import { NewConnectionDialog } from "partials/NewConnectionDialog.slint";
 import { CButton } from "widgets/CButton.slint";
@@ -7,13 +8,12 @@ import { Shadow } from "widgets/Shadow.slint";
 import { MenuBar } from "partials/MenuBar.slint";
 import { DatabaseBrowser } from "partials/DatabaseBrowser.slint";
 import { QueryEditor } from "partials/QueryEditor.slint";
-
+import { GState } from "const.slint";
+// #endregion
 export component AppWindow inherits Window {
     // #region Window Properties
     title: "Orbita";
     icon: Icons.icon_orbita;
-    width: 1200px;
-    height: 700px;
     background: Theme.background;
     // #endregion
     // #region Properties
@@ -26,41 +26,44 @@ export component AppWindow inherits Window {
     in-out property <string> db_user;
     in-out property <string> db_password;
     in-out property <string> query_text;
+    // UI
+    in-out property <bool> is_db_connected;
+    in-out property <string> ui_db_name;
     // #endregion
     // #region Callbacks
     callback rTestConnection();
     callback rExecuteQuery();
     // #endregion
+    is_db_connected <=> GState.is_db_connected;
+    // este es el padre
     VerticalLayout {
-        height: 100%;
-        width: 100%;
-        Rectangle {
-            MenuBar {
-                // items: [{ text: "Open" }, { text: "Execute" }, { text: "Save" }, { text: "Settings" }];
-                showAddButton: true;
-                addConnectionClicked => {
+        MenuBar {
+            // Fix this to use the new MenuBar component to open the NewConnectionDialog
+            clicked(callback_id) => {
+            // Aquí manejas todos los callbacks
+            if (callback_id == "add_postgresql") {
                     dialog-visible = true;
+                } else if (callback_id == "add_mysql") {
+                    dialog-visible = true;
+                } else if (callback_id == "add_sqlite") {
+                    debug("Agregando conexión SQLite");
                 }
             }
         }
 
         HorizontalLayout {
-            height: parent.height - 50px;
-            Rectangle {
+            DatabaseBrowser {
                 width: 300px;
-                DatabaseBrowser {
-                    item-selected(type, name) => {
+                is_db_connected <=> is_db_connected;
+                ui_db_name <=> root.ui_db_name;
+                item-selected(type, name) => {
                         // https://gist.github.com/Wilovy09/21b43df9928c87ea147affbc5f868bb8
                         // content.text = "Seleccionado " + type + ": " + name;
-                    }
                 }
             }
 
-            Rectangle {
-                width: parent.width - 300px;
-                QueryEditor {
-                    query_text <=> root.query_text;
-                }
+            QueryEditor {
+                query_text <=> root.query_text;
             }
         }
     }

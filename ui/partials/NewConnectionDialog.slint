@@ -4,6 +4,7 @@ import { CInput } from "../widgets/CInput.slint";
 import { Icons } from "../icons.slint";
 import { CButton } from "../widgets/CButton.slint";
 import { CSelect } from "../widgets/CSelect.slint";
+import { GState } from "../const.slint";
 
 export component NewConnectionDialog inherits Dialog {
     always-on-top: true;
@@ -73,6 +74,7 @@ export component NewConnectionDialog inherits Dialog {
                     model: ["", "MySQL", "PostgreSQL", "SQLite"];
                     selected(value) => {
                         root.database_type = value;
+                        GState.db_type = value;
                         debug("Database type: " + value);
                         
                         // Auto-llenar puerto por defecto

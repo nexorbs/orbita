@@ -1,10 +1,9 @@
+use crate::AppWindow;
 use crate::database::{DatabasePool, execute_query, test_database_connection};
 use crate::models::{ConnectionInfo, DatabaseType, QueryResult};
-use slint::{ComponentHandle, Weak};
+use slint::{ComponentHandle, SharedString, Weak};
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
-
-use crate::AppWindow;
 
 pub fn setup_ui_handlers(ui: &AppWindow, rt: Arc<Runtime>) -> Arc<Mutex<Option<DatabasePool>>> {
     let ui_weak = ui.as_weak();
@@ -39,7 +38,7 @@ fn setup_test_connection_handler(
 
         println!("🔄 Probando conexión: {}", conn_info.name);
 
-        let test_result = rt.block_on(test_database_connection(&conn_info));
+        let test_result = rt.block_on(test_database_connection(&conn_info, &ui_weak));
         match test_result {
             Ok(message) => {
                 println!("{}", message);
@@ -48,6 +47,9 @@ fn setup_test_connection_handler(
                     Ok(pool) => {
                         let mut db_pool = database_pool.lock().unwrap();
                         *db_pool = Some(pool);
+                        if let Some(ui) = ui_weak.upgrade() {
+                            ui.set_ui_db_name(SharedString::from(conn_info.name));
+                        }
                         println!("✅ Pool de conexiones creado exitosamente");
                     }
                     Err(error) => {

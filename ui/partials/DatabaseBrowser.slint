@@ -1,4 +1,6 @@
 import { ScrollView } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { GState } from "../const.slint";
 // Estructuras para la base de datos
 struct DatabaseColumn {
     name: string,
@@ -185,10 +187,12 @@ component StoredProcedureItem {
 // ---------------------------------------
 // Navegador principal de base de datos
 export component DatabaseBrowser {
+    in-out property <bool> is_db_connected: GState.is_db_connected;
+    in-out property <string> ui_db_name;
     in property <DatabaseConnection> database: {
-        name: "MiBaseDatos",
+        name: ui_db_name,
         connection-string: "Server=localhost;Database=test;",
-        connected: true,
+        connected: root.is_db_connected,
         tables: [
             {
                 name: "usuarios",
@@ -279,42 +283,56 @@ export component DatabaseBrowser {
     };
     callback item-selected(string, string); // tipo, nombre
     
-    width: 300px;
-    height: 100%;
     VerticalLayout {
-        // Header de conexión
+        width: 300px;
+        height: parent.height;
+        if (!GState.is_db_connected): VerticalLayout {
+            alignment: center;
+            HorizontalLayout {
+                alignment: center;
+                Text {
+                    text: "Connect to a database";
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: Theme.soft_gray;
+                }
+            }
+        }
+        if (GState.is_db_connected):
         Rectangle {
-            height: 35px;
-            background: root.database.connected ? #4CAF50 : #f44336;
             HorizontalLayout {
                 padding: 8px;
                 spacing: 8px;
-                alignment: start;
-                Rectangle {
-                    width: 16px;
-                    height: 16px;
-                    background: white;
-                    border-radius: 8px;
+                alignment: space-between;
+                HorizontalLayout {
+                    // Circle
+                    Rectangle {
+                        width: 16px;
+                        height: 16px;
+                        background: root.database.connected ? Theme.green : Theme.gray;
+                        border-radius: 8px;
+                    }
+    
+                    // Nombre de la base de datos
+                    Text {
+                        text: root.database.name;
+                        color: root.database.connected ? Theme.green : Theme.gray;
+                        font-size: 13px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                    }
                 }
 
+                // Estado de conexión
                 Text {
-                    text: root.database.name;
-                    color: white;
-                    font-size: 13px;
-                    font-weight: 600;
-                    vertical-alignment: center;
-                }
-
-                Text {
-                    text: root.database.connected ? "Conectado" : "Desconectado";
-                    color: white;
+                    text: GState.db_type;
+                    color: Theme.soft_gray;
                     font-size: 11px;
                     vertical-alignment: center;
                 }
             }
         }
-        
-        // Área de navegación con ScrollView
+        if (GState.is_db_connected):
         ScrollView {
             VerticalLayout {
                 padding: 8px;
