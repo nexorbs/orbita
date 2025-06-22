@@ -1,6 +1,7 @@
 import { CButton } from "../widgets/CButton.slint";
 import { Icons } from "../icons.slint";
 import { Theme } from "../theme.slint";
+
 struct MenuItem {
     text: string,
     icon: image,
@@ -23,7 +24,7 @@ component MenuItem {
     ta := TouchArea {
         Rectangle {
             border-radius: 4px;
-            background: ta.has-hover ? Theme.background : transparent;
+            background: ta.has-hover ? Theme.light_gray : transparent;
             animate background {
                 duration: 200ms;
                 easing: ease-in-out;
@@ -141,13 +142,14 @@ export component MenuBar {
                 { text: "SQLite", icon: Icons.sqlite, callback_id: "add_sqlite" },
             ]
         },
-        { text: "Execute", icon: Icons.execute, callback_id: "execute" },
-        { text: "Refresh", icon: Icons.refresh, callback_id: "refresh" },
-        { text: "Settings", icon: Icons.settings, callback_id: "settings" },
+        { text: "Execute", icon: Icons.execute, callback_id: "execute", children: [] },
+        { text: "Refresh", icon: Icons.refresh, callback_id: "refresh", children: [] },
+        { text: "Settings", icon: Icons.settings, callback_id: "settings", children: [] },
     ];
     Rectangle {
         width: 100%;
         height: 100%;
+        background: Theme.background;
         HorizontalLayout {
             alignment: start;
             padding: 4px;

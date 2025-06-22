@@ -15,6 +15,8 @@ export component AppWindow inherits Window {
     title: "Orbita";
     icon: Icons.icon_orbita;
     background: Theme.background;
+    preferred-height: 700px;
+    preferred-width: 1200px;
     // #endregion
     // #region Properties
     property <bool> dialog-visible: false;
@@ -35,13 +37,11 @@ export component AppWindow inherits Window {
     callback rExecuteQuery();
     // #endregion
     is_db_connected <=> GState.is_db_connected;
-    // este es el padre
     VerticalLayout {
         MenuBar {
             // Fix this to use the new MenuBar component to open the NewConnectionDialog
             clicked(callback_id) => {
-            // Aquí manejas todos los callbacks
-            if (callback_id == "add_postgresql") {
+                if (callback_id == "add_postgresql") {
                     dialog-visible = true;
                 } else if (callback_id == "add_mysql") {
                     dialog-visible = true;
