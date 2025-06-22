@@ -1,0 +1,110 @@
+use crate::database::{DatabasePool, execute_query, test_database_connection};
+use crate::models::{ConnectionInfo, DatabaseType, QueryResult};
+use slint::{ComponentHandle, Weak};
+use std::sync::{Arc, Mutex};
+use tokio::runtime::Runtime;
+
+use crate::AppWindow;
+
+pub fn setup_ui_handlers(ui: &AppWindow, rt: Arc<Runtime>) -> Arc<Mutex<Option<DatabasePool>>> {
+    let ui_weak = ui.as_weak();
+    let database_pool: Arc<Mutex<Option<DatabasePool>>> = Arc::new(Mutex::new(None));
+
+    setup_test_connection_handler(&ui_weak, &database_pool, &rt);
+    setup_execute_query_handler(&ui_weak, &database_pool, &rt);
+
+    database_pool
+}
+
+fn setup_test_connection_handler(
+    ui_weak: &Weak<AppWindow>,
+    database_pool: &Arc<Mutex<Option<DatabasePool>>>,
+    rt: &Arc<Runtime>,
+) {
+    let ui_weak = ui_weak.clone();
+    let database_pool = database_pool.clone();
+    let rt = rt.clone();
+
+    ui_weak.upgrade().unwrap().on_rTestConnection(move || {
+        let ui = ui_weak.upgrade().unwrap();
+        let conn_info = ConnectionInfo::new(
+            ui.get_connection_name().to_string(),
+            DatabaseType::from_string(&ui.get_database_type()).unwrap_or(DatabaseType::PostgreSQL),
+            ui.get_db_host().to_string(),
+            ui.get_db_port().to_string(),
+            ui.get_db_name().to_string(),
+            ui.get_db_user().to_string(),
+            ui.get_db_password().to_string(),
+        );
+
+        println!("🔄 Probando conexión: {}", conn_info.name);
+
+        let test_result = rt.block_on(test_database_connection(&conn_info));
+        match test_result {
+            Ok(message) => {
+                println!("{}", message);
+                let pool_result = rt.block_on(DatabasePool::new(&conn_info));
+                match pool_result {
+                    Ok(pool) => {
+                        let mut db_pool = database_pool.lock().unwrap();
+                        *db_pool = Some(pool);
+                        println!("✅ Pool de conexiones creado exitosamente");
+                    }
+                    Err(error) => {
+                        println!("❌ Error creando pool de conexiones: {}", error);
+                    }
+                }
+            }
+            Err(error) => {
+                println!("{}", error);
+            }
+        }
+    });
+}
+
+fn setup_execute_query_handler(
+    ui_weak: &Weak<AppWindow>,
+    database_pool: &Arc<Mutex<Option<DatabasePool>>>,
+    rt: &Arc<Runtime>,
+) {
+    let ui_weak = ui_weak.clone();
+    let database_pool = database_pool.clone();
+    let rt = rt.clone();
+
+    ui_weak.upgrade().unwrap().on_rExecuteQuery(move || {
+        let ui = ui_weak.upgrade().unwrap();
+        let query = ui.get_query_text().to_string();
+
+        let pool_guard = database_pool.lock().unwrap();
+        if let Some(ref pool) = *pool_guard {
+            let pool_clone = pool.clone();
+            drop(pool_guard);
+
+            println!("🔍 Ejecutando query: {}", query);
+
+            let query_result = rt.block_on(execute_query(&pool_clone, &query));
+            match query_result {
+                Ok(QueryResult::Select(results)) => {
+                    println!(
+                        "✅ Query SELECT ejecutada exitosamente. {} filas retornadas",
+                        results.len()
+                    );
+                    for (i, row) in results.iter().enumerate() {
+                        println!("Fila {}: {:?}", i + 1, row);
+                    }
+                }
+                Ok(QueryResult::Modify(rows_affected)) => {
+                    println!(
+                        "✅ Query de modificación ejecutada exitosamente. {} filas afectadas",
+                        rows_affected
+                    );
+                }
+                Err(error) => {
+                    println!("❌ Error ejecutando query: {}", error);
+                }
+            }
+        } else {
+            println!("❌ No hay conexión activa a la base de datos");
+        }
+    });
+}

@@ -1,0 +1,34 @@
+import { TextEdit, Button } from "std-widgets.slint";
+import { CButton } from "../widgets/CButton.slint";
+export component QueryEditor inherits Rectangle {
+    // #region Properties
+    in-out property <string> query_text;
+    property <string> placeholder: "Escribe tus consultas SQL aquí...";
+    // #endregion
+    // #region Callbacks
+    callback rExecuteQuery();
+    // #endregion
+
+    VerticalLayout {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        spacing: 10px;
+        CButton {
+            text: "Ejecutar Consulta";
+            width: 150px;
+            height: 40px;
+            onClick => {
+                rExecuteQuery();
+                debug("Ejecutar Consulta: " + query_text);
+            }
+        }
+
+        TextEdit {
+            width: parent.width;
+            height: parent.height;
+            text: root.query_text;
+            placeholder-text: placeholder;
+        }
+    }
+}

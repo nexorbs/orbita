@@ -1,0 +1,378 @@
+import { ScrollView } from "std-widgets.slint";
+// Estructuras para la base de datos
+struct DatabaseColumn {
+    name: string,
+    type: string,
+    nullable: bool,
+    primary-key: bool,
+    default-value: string,
+}
+
+struct DatabaseTable {
+    name: string,
+    columns: [DatabaseColumn],
+    row-count: int,
+}
+
+struct StoredProcedure {
+    name: string,
+    parameters: [string],
+    return-type: string,
+}
+
+struct DatabaseConnection {
+    name: string,
+    connection-string: string,
+    tables: [DatabaseTable],
+    stored-procedures: [StoredProcedure],
+    connected: bool,
+}
+
+// ---------------------------------------
+// Componente para mostrar columnas de tabla
+component ColumnItem {
+    in property <DatabaseColumn> column;
+    height: 20px;
+    Rectangle {
+        background: ta.has-hover ? #e8e8e8 : transparent;
+        border-radius: 2px;
+        HorizontalLayout {
+            padding-left: 16px;
+            spacing: 8px;
+            alignment: start;
+            
+            // Icono de columna
+            Rectangle {
+                width: 12px;
+                height: 12px;
+                background: root.column.primary-key ? #ffd700 : #4a90e2;
+                border-radius: 2px;
+            }
+
+            Text {
+                text: root.column.name;
+                font-size: 11px;
+                color: #333333;
+                vertical-alignment: center;
+            }
+
+            Text {
+                text: "(" + root.column.type + ")";
+                font-size: 10px;
+                color: #666666;
+                vertical-alignment: center;
+            }
+
+            if (root.column.primary-key): Text {
+                text: "PK";
+                font-size: 9px;
+                color: #ff6b35;
+                vertical-alignment: center;
+            }
+        }
+
+        ta := TouchArea { }
+    }
+}
+
+// ---------------------------------------
+// Componente para mostrar tablas (CORREGIDO)
+component TableItem {
+    in property <DatabaseTable> table;
+    callback table-selected(string);
+    
+    // AGREGADO: Estado interno para controlar expansión
+    in-out property <bool> expanded: false;
+    VerticalLayout {
+        // Header de la tabla
+        Rectangle {
+            height: 22px;
+            background: ta.has-hover ? #f0f0f0 : transparent;
+            border-radius: 2px;
+            HorizontalLayout {
+                padding-left: 8px;
+                spacing: 6px;
+                alignment: start;
+                
+                // Icono de expansión
+                Text {
+                    text: root.expanded ? "▼" : "▶";
+                    font-size: 10px;
+                    color: #666666;
+                    vertical-alignment: center;
+                }
+                
+                // Icono de tabla
+                Rectangle {
+                    width: 14px;
+                    height: 14px;
+                    background: #4CAF50;
+                    border-radius: 2px;
+                }
+
+                Text {
+                    text: root.table.name;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #333333;
+                    vertical-alignment: center;
+                }
+
+                Text {
+                    text: "(" + root.table.row-count + " filas)";
+                    font-size: 10px;
+                    color: #888888;
+                    vertical-alignment: center;
+                }
+            }
+
+            ta := TouchArea {
+                clicked => {
+                    // CORREGIDO: Cambiar el estado expanded
+                    root.expanded = !root.expanded;
+                    root.table-selected(root.table.name);
+                }
+            }
+        }
+        
+        // Columnas (solo si está expandido)
+        if (root.expanded): VerticalLayout {
+            for column in root.table.columns: ColumnItem {
+                column: column;
+            }
+        }
+    }
+}
+
+// ---------------------------------------
+// Componente para procedimientos almacenados
+component StoredProcedureItem {
+    in property <StoredProcedure> procedure;
+    callback procedure-selected(string);
+    height: 20px;
+    Rectangle {
+        background: ta.has-hover ? #e8f4fd : transparent;
+        border-radius: 2px;
+        HorizontalLayout {
+            padding-left: 8px;
+            spacing: 6px;
+            alignment: start;
+            
+            // Icono de procedimiento
+            Rectangle {
+                width: 12px;
+                height: 12px;
+                background: #FF9800;
+                border-radius: 6px;
+            }
+
+            Text {
+                text: root.procedure.name;
+                font-size: 11px;
+                color: #333333;
+                vertical-alignment: center;
+            }
+        }
+
+        ta := TouchArea {
+            clicked => {
+                root.procedure-selected(root.procedure.name);
+            }
+        }
+    }
+}
+
+// ---------------------------------------
+// Navegador principal de base de datos
+export component DatabaseBrowser {
+    in property <DatabaseConnection> database: {
+        name: "MiBaseDatos",
+        connection-string: "Server=localhost;Database=test;",
+        connected: true,
+        tables: [
+            {
+                name: "usuarios",
+                row-count: 150,
+                columns: [
+                    { name: "id", type: "int", nullable: false, primary-key: true, default-value: "" },
+                    {
+                        name: "nombre",
+                        type: "varchar(100)",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: ""
+                    },
+                    {
+                        name: "email",
+                        type: "varchar(255)",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: ""
+                    },
+                    {
+                        name: "fecha_creacion",
+                        type: "datetime",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: "GETDATE()"
+                    },
+                ]
+            },
+            {
+                name: "productos",
+                row-count: 89,
+                columns: [
+                    { name: "id", type: "int", nullable: false, primary-key: true, default-value: "" },
+                    {
+                        name: "nombre",
+                        type: "varchar(200)",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: ""
+                    },
+                    {
+                        name: "precio",
+                        type: "decimal(10,2)",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: "0.00"
+                    },
+                    { name: "stock", type: "int", nullable: false, primary-key: false, default-value: "0" },
+                ]
+            },
+            {
+                name: "pedidos",
+                row-count: 245,
+                columns: [
+                    { name: "id", type: "int", nullable: false, primary-key: true, default-value: "" },
+                    { name: "usuario_id", type: "int", nullable: false, primary-key: false, default-value: "" },
+                    {
+                        name: "fecha_pedido",
+                        type: "datetime",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: "GETDATE()"
+                    },
+                    {
+                        name: "total",
+                        type: "decimal(10,2)",
+                        nullable: false,
+                        primary-key: false,
+                        default-value: "0.00"
+                    },
+                ]
+            }
+        ],
+        stored-procedures: [
+            { name: "sp_obtener_usuarios", parameters: ["@activos bit"], return-type: "table" },
+            {
+                name: "sp_crear_pedido",
+                parameters: ["@usuario_id int", "@total decimal"],
+                return-type: "int"
+            },
+            {
+                name: "sp_actualizar_stock",
+                parameters: ["@producto_id int", "@cantidad int"],
+                return-type: "void"
+            },
+        ]
+    };
+    callback item-selected(string, string); // tipo, nombre
+    
+    width: 300px;
+    height: 100%;
+    VerticalLayout {
+        // Header de conexión
+        Rectangle {
+            height: 35px;
+            background: root.database.connected ? #4CAF50 : #f44336;
+            HorizontalLayout {
+                padding: 8px;
+                spacing: 8px;
+                alignment: start;
+                Rectangle {
+                    width: 16px;
+                    height: 16px;
+                    background: white;
+                    border-radius: 8px;
+                }
+
+                Text {
+                    text: root.database.name;
+                    color: white;
+                    font-size: 13px;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+
+                Text {
+                    text: root.database.connected ? "Conectado" : "Desconectado";
+                    color: white;
+                    font-size: 11px;
+                    vertical-alignment: center;
+                }
+            }
+        }
+        
+        // Área de navegación con ScrollView
+        ScrollView {
+            VerticalLayout {
+                padding: 8px;
+                spacing: 4px;
+                
+                // Sección de Tablas
+                Rectangle {
+                    height: 25px;
+                    background: #f8f9fa;
+                    border-radius: 3px;
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        alignment: start;
+                        Text {
+                            text: "📊 TABLAS (" + root.database.tables.length + ")";
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #495057;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+
+                for table in root.database.tables: TableItem {
+                    table: table;
+                    table-selected(name) => {
+                        root.item-selected("table", name);
+                    }
+                }
+                Rectangle {
+                    height: 10px;
+                }
+                
+                // Sección de Procedimientos Almacenados
+                Rectangle {
+                    height: 25px;
+                    background: #fff3cd;
+                    border-radius: 3px;
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        alignment: start;
+                        Text {
+                            text: "⚙️ PROCEDIMIENTOS (" + root.database.stored-procedures.length + ")";
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #856404;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+
+                for procedure in root.database.stored-procedures: StoredProcedureItem {
+                    procedure: procedure;
+                    procedure-selected(name) => {
+                        root.item-selected("procedure", name);
+                    }
+                }
+            }
+        }
+    }
+}
