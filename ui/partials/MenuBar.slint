@@ -6,6 +6,7 @@ struct MenuItem {
     text: string,
     icon: image,
     callback_id: string,
+    colored: color,
 }
 
 struct MenuGroup {
@@ -13,13 +14,14 @@ struct MenuGroup {
     icon: image,
     callback_id: string,
     children: [MenuItem],
+    colored: color,
 }
 
 component MenuItem {
     in property <string> text;
     in property <image> icon;
     in property <string> callback_id;
-    in property <brush> color: white;
+    in property <color> color: Theme.white;
     callback clicked(string);
     ta := TouchArea {
         Rectangle {
@@ -58,11 +60,12 @@ component MenuGroup {
     in property <image> icon;
     in property <string> callback_id;
     in property <[MenuItem]> children;
+    in property <color> colored: Theme.white;
     callback clicked(string);
     ta := TouchArea {
         Rectangle {
             border-radius: 4px;
-            background: ta.has-hover ? Theme.button-hover-background : transparent;
+            background: ta.has-hover ? Theme.light_gray : transparent;
             animate background {
                 duration: 200ms;
                 easing: ease-in-out;
@@ -75,10 +78,10 @@ component MenuGroup {
                     source: icon;
                     width: 16px;
                     height: 16px;
-                    colorize: white;
+                    colorize: colored;
                 }
                 Text {
-                    color: white;
+                    color: colored;
                     text: text;
                     vertical-alignment: center;
                 }
@@ -159,6 +162,7 @@ export component MenuBar {
                 for menuGroup in items: MenuGroup {
                     text: menuGroup.text;
                     icon: menuGroup.icon;
+                    colored: menuGroup.text == "Execute" ? Theme.green : Theme.white;
                     callback_id: menuGroup.callback_id;
                     children: menuGroup.children;
                     clicked(callback_id) => {

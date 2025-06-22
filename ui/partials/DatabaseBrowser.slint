@@ -1,6 +1,8 @@
 import { ScrollView } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { GState } from "../const.slint";
+import { Icons } from "../icons.slint";
+
 // Estructuras para la base de datos
 struct DatabaseColumn {
     name: string,
@@ -30,9 +32,8 @@ struct DatabaseConnection {
     connected: bool,
 }
 
-// ---------------------------------------
 // Componente para mostrar columnas de tabla
-component ColumnItem {
+export component ColumnItem {
     in property <DatabaseColumn> column;
     height: 20px;
     Rectangle {
@@ -77,76 +78,56 @@ component ColumnItem {
     }
 }
 
-// ---------------------------------------
-// Componente para mostrar tablas (CORREGIDO)
+// Componente para mostrar tablas
 component TableItem {
     in property <DatabaseTable> table;
     callback table-selected(string);
-    
-    // AGREGADO: Estado interno para controlar expansión
-    in-out property <bool> expanded: false;
-    VerticalLayout {
-        // Header de la tabla
-        Rectangle {
-            height: 22px;
-            background: ta.has-hover ? #f0f0f0 : transparent;
-            border-radius: 2px;
-            HorizontalLayout {
-                padding-left: 8px;
-                spacing: 6px;
-                alignment: start;
-                
-                // Icono de expansión
-                Text {
-                    text: root.expanded ? "▼" : "▶";
-                    font-size: 10px;
-                    color: #666666;
-                    vertical-alignment: center;
-                }
-                
-                // Icono de tabla
-                Rectangle {
-                    width: 14px;
-                    height: 14px;
-                    background: #4CAF50;
-                    border-radius: 2px;
-                }
+    ta := TouchArea {
+        ContextMenuArea {
+            Rectangle {
+                height: 22px;
+                background: ta.has-hover ? Theme.button-hover-background : transparent;
+                border-radius: 2px;
+                HorizontalLayout {
+                    padding-left: 8px;
+                    spacing: 6px;
+                    alignment: start;
+                    // Icono de tabla
+                    Rectangle {
+                        width: 14px;
+                        height: 14px;
+                        background: Theme.green;
+                        border-radius: 2px;
+                    }
 
-                Text {
-                    text: root.table.name;
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: #333333;
-                    vertical-alignment: center;
-                }
+                    Text {
+                        text: root.table.name;
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: Theme.white;
+                        vertical-alignment: center;
+                    }
 
-                Text {
-                    text: "(" + root.table.row-count + " filas)";
-                    font-size: 10px;
-                    color: #888888;
-                    vertical-alignment: center;
+                    Text {
+                        text: "(" + root.table.row-count + " filas)";
+                        font-size: 10px;
+                        color: #888888;
+                        vertical-alignment: center;
+                    }
                 }
             }
 
-            ta := TouchArea {
-                clicked => {
-                    // CORREGIDO: Cambiar el estado expanded
-                    root.expanded = !root.expanded;
-                    root.table-selected(root.table.name);
+            Menu {
+                MenuItem {
+                    title: @tr("Show records");
+                    activated => {
+                        debug("SELECT * FROM " + root.table.name);
+                    }
                 }
-            }
-        }
-        
-        // Columnas (solo si está expandido)
-        if (root.expanded): VerticalLayout {
-            for column in root.table.columns: ColumnItem {
-                column: column;
             }
         }
     }
 }
-
-// ---------------------------------------
 // Componente para procedimientos almacenados
 component StoredProcedureItem {
     in property <StoredProcedure> procedure;
@@ -184,7 +165,7 @@ component StoredProcedureItem {
     }
 }
 
-// ---------------------------------------
+
 // Navegador principal de base de datos
 export component DatabaseBrowser {
     in-out property <bool> is_db_connected: GState.is_db_connected;
@@ -286,58 +267,70 @@ export component DatabaseBrowser {
     VerticalLayout {
         width: 300px;
         height: parent.height;
-        if (!GState.is_db_connected): VerticalLayout {
-            alignment: center;
-            HorizontalLayout {
-                alignment: center;
-                Text {
-                    text: "Connect to a database";
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: Theme.soft_gray;
-                }
+
+        // Header - Icono y título de bases de datos
+        HorizontalLayout {
+            alignment: start;
+            padding: 8px;
+            Image {
+                source: Icons.database;
+                width: 20px;
+                height: 20px;
+                colorize: Theme.soft_gray;
+            }
+
+            Text {
+                text: "DATABASES";
+                font-size: 18px;
+                color: Theme.soft_gray;
+                padding-left: 8px;
             }
         }
-        if (GState.is_db_connected):
-        Rectangle {
+
+
+        // Información de conexión
+        VerticalLayout {
+            padding: 8px;
+            spacing: 4px;
             HorizontalLayout {
-                padding: 8px;
                 spacing: 8px;
                 alignment: space-between;
-                HorizontalLayout {
-                    // Circle
-                    Rectangle {
-                        width: 16px;
-                        height: 16px;
-                        background: root.database.connected ? Theme.green : Theme.gray;
-                        border-radius: 8px;
-                    }
-    
-                    // Nombre de la base de datos
-                    Text {
-                        text: root.database.name;
-                        color: root.database.connected ? Theme.green : Theme.gray;
-                        font-size: 13px;
-                        font-weight: 600;
-                        vertical-alignment: center;
-                    }
+                
+                // Indicador de estado de conexión
+                Rectangle {
+                    width: 16px;
+                    height: 16px;
+                    background: root.database.connected ? Theme.green : Theme.gray;
+                    border-radius: 8px;
                 }
-
-                // Estado de conexión
+        
+                // Nombre de la base de datos
                 Text {
-                    text: GState.db_type;
-                    color: Theme.soft_gray;
-                    font-size: 11px;
+                    text: root.database.name;
+                    color: root.database.connected ? Theme.green : Theme.gray;
+                    font-size: 13px;
+                    font-weight: 600;
                     vertical-alignment: center;
                 }
             }
+
+
+            // Tipo de base de datos
+            Text {
+                text: GState.db_type;
+                color: Theme.soft_gray;
+                font-size: 11px;
+                vertical-alignment: center;
+            }
         }
-        if (GState.is_db_connected):
+
+
+        // Contenido principal con scroll
         ScrollView {
             VerticalLayout {
                 padding: 8px;
                 spacing: 4px;
-                
+                    
                 // Sección de Tablas
                 Rectangle {
                     height: 25px;
@@ -356,16 +349,20 @@ export component DatabaseBrowser {
                     }
                 }
 
+
+                // Lista de tablas
                 for table in root.database.tables: TableItem {
                     table: table;
                     table-selected(name) => {
                         root.item-selected("table", name);
                     }
                 }
+                
+                // Espaciador
                 Rectangle {
                     height: 10px;
                 }
-                
+                    
                 // Sección de Procedimientos Almacenados
                 Rectangle {
                     height: 25px;
@@ -384,6 +381,8 @@ export component DatabaseBrowser {
                     }
                 }
 
+
+                // Lista de procedimientos almacenados
                 for procedure in root.database.stored-procedures: StoredProcedureItem {
                     procedure: procedure;
                     procedure-selected(name) => {

@@ -39,14 +39,13 @@ export component AppWindow inherits Window {
     is_db_connected <=> GState.is_db_connected;
     VerticalLayout {
         MenuBar {
-            // Fix this to use the new MenuBar component to open the NewConnectionDialog
             clicked(callback_id) => {
                 if (callback_id == "add_postgresql") {
                     dialog-visible = true;
                 } else if (callback_id == "add_mysql") {
                     dialog-visible = true;
                 } else if (callback_id == "add_sqlite") {
-                    debug("Agregando conexión SQLite");
+                    dialog-visible = true;
                 }
             }
         }
