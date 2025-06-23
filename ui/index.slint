@@ -19,7 +19,7 @@ export component AppWindow inherits Window {
     preferred-width: 1200px;
     // #endregion
     // #region Properties
-    property <bool> dialog-visible: false;
+    in-out property <bool> dialog-visible;
     in-out property <string> connection_name;
     in-out property <string> database_type;
     in-out property <string> db_host;
@@ -35,13 +35,15 @@ export component AppWindow inherits Window {
     // #region Callbacks
     callback rTestConnection();
     callback rExecuteQuery();
+    callback rAddPostgresql();
     // #endregion
     is_db_connected <=> GState.is_db_connected;
+    dialog-visible <=> GState.dialog_visible;
     VerticalLayout {
         MenuBar {
             clicked(callback_id) => {
                 if (callback_id == "add_postgresql") {
-                    dialog-visible = true;
+                    rAddPostgresql();
                 } else if (callback_id == "add_mysql") {
                     dialog-visible = true;
                 } else if (callback_id == "add_sqlite") {

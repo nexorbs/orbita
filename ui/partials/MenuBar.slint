@@ -6,7 +6,7 @@ struct MenuItem {
     text: string,
     icon: image,
     callback_id: string,
-    colored: color,
+    color: color,
 }
 
 struct MenuGroup {
@@ -50,7 +50,7 @@ component MenuItem {
         }
 
         clicked => {
-            clicked(callback_id);
+            root.clicked(callback_id);
         }
     }
 }
@@ -88,7 +88,6 @@ component MenuGroup {
             }
         }
 
-        // Popup submenu
         submenu := PopupWindow {
             y: parent.height + 2px;
             width: max(150px, parent.width);
@@ -108,7 +107,7 @@ component MenuGroup {
                         text: menuItem.text;
                         icon: menuItem.icon;
                         callback_id: menuItem.callback_id;
-                        color: white;
+                        color: menuItem.color;
                         clicked(callback_id) => {
                             submenu.close();
                             root.clicked(callback_id);
@@ -132,22 +131,45 @@ export component MenuBar {
     width: 100%;
     height: 40px;
     in property <[MenuGroup]> items;
-    in property <bool> showAddButton: false;
     callback clicked(string);
     items: [
         {
             text: "Add Connection",
             icon: Icons.plus_icon,
             callback_id: "add_connection_menu",
+            colored: Theme.white,
             children: [
-                { text: "PostgreSQL", icon: Icons.postgres, callback_id: "add_postgresql" },
-                { text: "MySQL", icon: Icons.mysql, callback_id: "add_mysql" },
-                { text: "SQLite", icon: Icons.sqlite, callback_id: "add_sqlite" },
+                {
+                    text: "PostgreSQL",
+                    icon: Icons.postgres,
+                    callback_id: "add_postgresql",
+                    color: Theme.white
+                },
+                { text: "MySQL", icon: Icons.mysql, callback_id: "add_mysql", color: Theme.white },
+                { text: "SQLite", icon: Icons.sqlite, callback_id: "add_sqlite", color: Theme.white },
             ]
         },
-        { text: "Execute", icon: Icons.execute, callback_id: "execute", children: [] },
-        { text: "Refresh", icon: Icons.refresh, callback_id: "refresh", children: [] },
-        { text: "Settings", icon: Icons.settings, callback_id: "settings", children: [] },
+        {
+            text: "Execute",
+            icon: Icons.execute,
+            callback_id: "execute",
+            colored: Theme.green,
+            children: []
+        },
+        {
+            text: "Refresh",
+            icon: Icons.refresh,
+            callback_id: "refresh",
+            colored: Theme.white,
+            children: []
+        },
+        {
+            text: "Settings",
+            icon: Icons.settings,
+            callback_id: "settings",
+            colored: Theme.white,
+            children: []
+        },
     ];
     Rectangle {
         width: 100%;
@@ -162,7 +184,7 @@ export component MenuBar {
                 for menuGroup in items: MenuGroup {
                     text: menuGroup.text;
                     icon: menuGroup.icon;
-                    colored: menuGroup.text == "Execute" ? Theme.green : Theme.white;
+                    colored: menuGroup.colored;
                     callback_id: menuGroup.callback_id;
                     children: menuGroup.children;
                     clicked(callback_id) => {

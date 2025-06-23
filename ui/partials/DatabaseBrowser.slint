@@ -124,10 +124,18 @@ component TableItem {
                         debug("SELECT * FROM " + root.table.name);
                     }
                 }
+
+                MenuItem {
+                    title: @tr("Edit table");
+                    activated => {
+                        debug("Edit table: " + root.table.name);
+                    }
+                }
             }
         }
     }
 }
+
 // Componente para procedimientos almacenados
 component StoredProcedureItem {
     in property <StoredProcedure> procedure;
