@@ -109,8 +109,8 @@ component MenuGroup {
                         callback_id: menuItem.callback_id;
                         color: menuItem.color;
                         clicked(callback_id) => {
-                            submenu.close();
                             root.clicked(callback_id);
+                            submenu.close();
                         }
                     }
                 }
