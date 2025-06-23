@@ -2,6 +2,7 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { GState } from "../const.slint";
 import { Icons } from "../icons.slint";
+import { CenteredIcon } from "../widgets/CenteredIcon.slint";
 
 // Estructuras para la base de datos
 struct DatabaseColumn {
@@ -176,7 +177,8 @@ component StoredProcedureItem {
 
 // Navegador principal de base de datos
 export component DatabaseBrowser {
-    in-out property <bool> is_db_connected: GState.is_db_connected;
+    in-out property <bool> is_db_connected: true;
+    ui-db-name: "TestDB";
     in-out property <string> ui_db_name;
     in property <DatabaseConnection> database: {
         name: ui_db_name,
@@ -297,23 +299,26 @@ export component DatabaseBrowser {
 
 
         // Información de conexión
-        VerticalLayout {
+        HorizontalLayout {
             padding: 8px;
             spacing: 4px;
             HorizontalLayout {
-                spacing: 8px;
-                alignment: space-between;
+                spacing: 5px;
+                alignment: start;
                 
                 // Indicador de estado de conexión
-                Rectangle {
-                    width: 16px;
-                    height: 16px;
-                    background: root.database.connected ? Theme.green : Theme.gray;
-                    border-radius: 8px;
+                CenteredIcon {
+                    fontSize: dbName.font-size;
+                    Rectangle {
+                        width: 16px;
+                        height: 16px;
+                        background: root.database.connected ? Theme.green : Theme.gray;
+                        border-radius: 8px;
+                    }
                 }
         
                 // Nombre de la base de datos
-                Text {
+                dbName := Text {
                     text: root.database.name;
                     color: root.database.connected ? Theme.green : Theme.gray;
                     font-size: 13px;
@@ -321,7 +326,6 @@ export component DatabaseBrowser {
                     vertical-alignment: center;
                 }
             }
-
 
             // Tipo de base de datos
             Text {

@@ -43,7 +43,7 @@ export component AppWindow inherits Window {
         MenuBar {
             clicked(callback_id) => {
                 if (callback_id == "add_postgresql") {
-                    rAddPostgresql();
+                    dialog-visible = true;
                 } else if (callback_id == "add_mysql") {
                     dialog-visible = true;
                 } else if (callback_id == "add_sqlite") {
@@ -53,7 +53,7 @@ export component AppWindow inherits Window {
         }
 
         HorizontalLayout {
-            DatabaseBrowser {
+            if is_db_connected:DatabaseBrowser {
                 width: 300px;
                 is_db_connected <=> is_db_connected;
                 ui_db_name <=> root.ui_db_name;
@@ -62,7 +62,6 @@ export component AppWindow inherits Window {
                         // content.text = "Seleccionado " + type + ": " + name;
                 }
             }
-
             QueryEditor {
                 query_text <=> root.query_text;
             }

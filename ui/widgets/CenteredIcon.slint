@@ -1,0 +1,18 @@
+export component CenteredIcon inherits HorizontalLayout {
+    in-out property <length> iconSize;
+    in-out property <length> fontSize;
+    in-out property <image> icon;
+    if icon.width > 0: Image {
+        source: icon;
+        width: iconSize;
+        height: iconSize;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    Rectangle {
+        y: (hl.height - fontSize) / 2;
+        hl := HorizontalLayout {
+            @children
+        }
+    }
+}
