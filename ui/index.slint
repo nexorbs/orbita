@@ -9,6 +9,7 @@ import { MenuBar } from "partials/MenuBar.slint";
 import { DatabaseBrowser } from "partials/DatabaseBrowser.slint";
 import { QueryEditor } from "partials/QueryEditor.slint";
 import { GState } from "const.slint";
+import { HResize } from "widgets/HResize.slint";
 // #endregion
 export component AppWindow inherits Window {
     // #region Window Properties
@@ -27,9 +28,9 @@ export component AppWindow inherits Window {
     in-out property <string> db_name;
     in-out property <string> db_user;
     in-out property <string> db_password;
-    in-out property <string> query_text;
     // UI
     in-out property <bool> is_db_connected;
+    in-out property <string> query_text;
     in-out property <string> ui_db_name;
     // #endregion
     // #region Callbacks
@@ -52,19 +53,8 @@ export component AppWindow inherits Window {
             }
         }
 
-        HorizontalLayout {
-            if is_db_connected:DatabaseBrowser {
-                width: 300px;
-                is_db_connected <=> is_db_connected;
-                ui_db_name <=> root.ui_db_name;
-                item-selected(type, name) => {
-                        // https://gist.github.com/Wilovy09/21b43df9928c87ea147affbc5f868bb8
-                        // content.text = "Seleccionado " + type + ": " + name;
-                }
-            }
-            QueryEditor {
-                query_text <=> root.query_text;
-            }
+        HResize {
+            query_text <=> root.query_text;
         }
     }
 

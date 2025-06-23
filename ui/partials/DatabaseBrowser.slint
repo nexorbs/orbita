@@ -275,12 +275,9 @@ export component DatabaseBrowser {
     callback item-selected(string, string); // tipo, nombre
     
     VerticalLayout {
-        width: 300px;
-        height: parent.height;
-
         // Header - Icono y título de bases de datos
+        width: parent.width;
         HorizontalLayout {
-            alignment: start;
             padding: 8px;
             Image {
                 source: Icons.database;

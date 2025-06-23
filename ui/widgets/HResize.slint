@@ -1,0 +1,60 @@
+import { QueryEditor } from "../partials/QueryEditor.slint";
+import { GState } from "../const.slint";
+import { Theme } from "../theme.slint";
+import { DatabaseBrowser } from "../partials/DatabaseBrowser.slint";
+export component HResize {
+    property <float> proportion: 0.25;
+    property <float> new-proportion: 0.0;
+    in property <length> sidebar-width: root.width * proportion;
+    in-out property <string> query_text;
+    in property <bool> is_db_connected: GState.is_db_connected;
+    in property <int> min-db_browser-width: 0.1;
+    // Panel izquierdo
+    if is_db_connected:Rectangle {
+        width: root.sidebar-width;
+        // Contenido del panel izquierdo
+        x: 0px;
+        DatabaseBrowser {
+            width: 100%;
+            height: root.height;
+            item-selected(type, name) => {
+                // https://gist.github.com/Wilovy09/21b43df9928c87ea147affbc5f868bb8
+                // content.text = "Seleccionado " + type + ": " + name;
+            }
+        }
+    }
+    // Handle para redimensionar - ARREGLADO
+    handle := Rectangle {
+        x: root.sidebar-width;
+        width: 5px;
+        height: root.height;
+        states [
+            hover when ta.has-hover: {
+                background: Theme.button-hover-background;
+            }
+        ]
+        ta := TouchArea {
+            width: parent.width + 6px;
+            height: parent.height;
+            x: -3px;
+            mouse-cursor: col-resize;
+            moved => {
+                if (self.pressed) {
+                    root.new-proportion = (self.mouse-x + root.sidebar-width) / root.width;
+                    if (is_db_connected) {
+                        root.proportion = max(0.2, min(0.9, root.new-proportion));
+                    } else {
+                        root.proportion = max(0.0, min(0.9, root.new-proportion));
+                    }
+                }
+            }
+        }
+    }
+    // Contenido del panel derecho
+    QueryEditor {
+        x: root.sidebar-width + handle.width;
+        width: root.width - root.sidebar-width - handle.width;
+        height: root.height;
+        query_text <=> root.query_text;
+    }
+}
