@@ -19,6 +19,7 @@ export component NewConnectionDialog inherits Dialog {
     in-out property <string> db_password;
     callback close-dialog();
     callback testConnection();
+    callback addConnection();
     Rectangle {
         background: Theme.background;
         border-color: Theme.text;
@@ -141,8 +142,14 @@ export component NewConnectionDialog inherits Dialog {
 
                     CButton {
                         height: 40px;
-                        text: "Save";
+                        width: 50%;
+                        icon: Icons.plus_icon;
+                        background: Theme.gray;
+                        text: "Add Connection";
+                        hover-color: Theme.green;
+                        has-hover-color: true;
                         onClick => {
+                            addConnection();
                             close-dialog();
                         }
                     }

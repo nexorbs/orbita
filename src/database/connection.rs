@@ -17,6 +17,20 @@ pub async fn test_database_connection(
     }
 }
 
+pub async fn database_connection(
+    conn_info: &ConnectionInfo,
+    ui_weak: &Weak<AppWindow>,
+) -> Result<String, String> {
+    let connection_string = conn_info.build_connection_string();
+    println!("Conectando a base de datos: {}", connection_string);
+
+    match conn_info.db_type {
+        DatabaseType::MySQL => mysql_connection(&connection_string, ui_weak).await,
+        DatabaseType::PostgreSQL => postgresql_connection(&connection_string, ui_weak).await,
+        DatabaseType::SQLite => sqlite_connection(&connection_string, ui_weak).await,
+    }
+}
+
 async fn test_mysql_connection(
     connection_string: &str,
     ui_weak: &Weak<AppWindow>,
@@ -31,9 +45,9 @@ async fn test_mysql_connection(
                     let version: String = row.get("version");
                     pool.close().await;
                     if let Some(ui) = ui_weak.upgrade() {
-                        ui.set_is_db_connected(true);
+                        ui.set_is_tested_connection(true);
                     }
-                    Ok(format!("✅ Conexión MySQL exitosa - Versión: {}", version))
+                    Ok(format!("🧪✅ Conexión MySQL"))
                 }
                 Err(e) => Err(format!("❌ Error en consulta MySQL: {}", e)),
             }
@@ -56,9 +70,9 @@ async fn test_postgresql_connection(
                     let version: String = row.get("version");
                     pool.close().await;
                     if let Some(ui) = ui_weak.upgrade() {
-                        ui.set_is_db_connected(true);
+                        ui.set_is_tested_connection(true);
                     }
-                    Ok(format!("✅ Conexión PostgreSQL exitosa - {}", version))
+                    Ok(format!("🧪✅Conexión PostgreSQL"))
                 }
                 Err(e) => Err(format!("❌ Error en consulta PostgreSQL: {}", e)),
             }
@@ -81,9 +95,84 @@ async fn test_sqlite_connection(
                     let version: String = row.get("version");
                     pool.close().await;
                     if let Some(ui) = ui_weak.upgrade() {
+                        ui.set_is_tested_connection(true);
+                    }
+                    Ok(format!("🧪✅ Conexión SQLite exitosa"))
+                }
+                Err(e) => Err(format!("❌ Error en consulta SQLite: {}", e)),
+            }
+        }
+        Err(e) => Err(format!("❌ Error conectando a SQLite: {}", e)),
+    }
+}
+
+async fn mysql_connection(
+    connection_string: &str,
+    ui_weak: &Weak<AppWindow>,
+) -> Result<String, String> {
+    match sqlx::MySqlPool::connect(connection_string).await {
+        Ok(pool) => {
+            match sqlx::query("SELECT VERSION() as version")
+                .fetch_one(&pool)
+                .await
+            {
+                Ok(row) => {
+                    let version: String = row.get("version");
+                    pool.close().await;
+                    if let Some(ui) = ui_weak.upgrade() {
                         ui.set_is_db_connected(true);
                     }
-                    Ok(format!("✅ Conexión SQLite exitosa - Versión: {}", version))
+                    Ok(format!("✅ Conexión MySQL exitosa"))
+                }
+                Err(e) => Err(format!("❌ Error en consulta MySQL: {}", e)),
+            }
+        }
+        Err(e) => Err(format!("❌ Error conectando a MySQL: {}", e)),
+    }
+}
+
+async fn postgresql_connection(
+    connection_string: &str,
+    ui_weak: &Weak<AppWindow>,
+) -> Result<String, String> {
+    match sqlx::PgPool::connect(connection_string).await {
+        Ok(pool) => {
+            match sqlx::query("SELECT version() as version")
+                .fetch_one(&pool)
+                .await
+            {
+                Ok(row) => {
+                    let version: String = row.get("version");
+                    pool.close().await;
+                    if let Some(ui) = ui_weak.upgrade() {
+                        ui.set_is_db_connected(true);
+                    }
+                    Ok(format!("✅ Conexión PostgreSQL exitosa"))
+                }
+                Err(e) => Err(format!("❌ Error en consulta PostgreSQL: {}", e)),
+            }
+        }
+        Err(e) => Err(format!("❌ Error conectando a PostgreSQL: {}", e)),
+    }
+}
+
+async fn sqlite_connection(
+    connection_string: &str,
+    ui_weak: &Weak<AppWindow>,
+) -> Result<String, String> {
+    match sqlx::SqlitePool::connect(connection_string).await {
+        Ok(pool) => {
+            match sqlx::query("SELECT sqlite_version() as version")
+                .fetch_one(&pool)
+                .await
+            {
+                Ok(row) => {
+                    let version: String = row.get("version");
+                    pool.close().await;
+                    if let Some(ui) = ui_weak.upgrade() {
+                        ui.set_is_db_connected(true);
+                    }
+                    Ok(format!("✅ Conexión SQLite exitosa"))
                 }
                 Err(e) => Err(format!("❌ Error en consulta SQLite: {}", e)),
             }

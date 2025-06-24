@@ -14,7 +14,7 @@ export component QueryEditor {
         spacing: 10px;
         // TODO: Change this to TextEditBase
         TextEdit {
-            text: root.query_text;
+            text <=> root.query_text;
             placeholder-text: placeholder;
         }
     }

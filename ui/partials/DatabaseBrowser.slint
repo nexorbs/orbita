@@ -178,8 +178,7 @@ component StoredProcedureItem {
 // Navegador principal de base de datos
 export component DatabaseBrowser {
     in-out property <bool> is_db_connected: true;
-    ui-db-name: "TestDB";
-    in-out property <string> ui_db_name;
+    in-out property <string> ui_db_name ;
     in property <DatabaseConnection> database: {
         name: ui_db_name,
         connection-string: "Server=localhost;Database=test;",
