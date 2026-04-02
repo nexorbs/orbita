@@ -41,7 +41,7 @@ pub fn get_nav_items() -> Vec<NavItem> {
         )),
         NavItem::Button(NavButton::new(
             "Settings".to_string(),
-            Route::HomeView,
+            Route::SettingsView,
             icons::lucide::settings(),
         )),
     ]
