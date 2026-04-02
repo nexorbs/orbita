@@ -1,7 +1,6 @@
 use freya::{
     animation::{AnimColor, use_animation}, prelude::*, router::RouterContext
 };
-
 use crate::{router::Route, theme::{BACKGROUND, TEXT_PRIMARY}};
 
 #[derive(PartialEq, Clone)]
@@ -11,7 +10,6 @@ pub struct NavButton {
     pub icon: Bytes,
     pub icon_color: Option<Color>,
 }
-
 
 impl Component for NavButton {
     fn render(&self) -> impl IntoElement {

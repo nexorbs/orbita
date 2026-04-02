@@ -1,7 +1,7 @@
 use freya::{prelude::*, router::Outlet};
 
 use crate::{
-    components::{NavButton, get_nav_items, nav_items::NavItem},
+    components::{get_nav_items, nav_items::NavItem},
     router::Route,
     theme::TEXT_PRIMARY,
 };
